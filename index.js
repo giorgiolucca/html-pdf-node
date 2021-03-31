@@ -1,4 +1,5 @@
-const puppeteer = require('puppeteer');
+const chromium = require('chrome-aws-lambda');
+
 var Promise = require('bluebird');
 const hb = require('handlebars')
 
@@ -14,9 +15,15 @@ async function generatePdf(file, options, callback) {
     delete options.args;
   }
 
-  const browser = await puppeteer.launch({
-    args: args
-  });
+  const chromiumOptions = {
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath,
+    headless: true,
+    ignoreHTTPSErrors: true
+  };
+
+  const browser = await chromium.puppeteer.launch(chromiumOptions);
   const page = await browser.newPage();
 
   if(file.content) {
@@ -52,7 +59,7 @@ async function generatePdfs(files, options, callback) {
     args = options.args;
     delete options.args;
   }
-  const browser = await puppeteer.launch({
+  const browser = await chromium.puppeteer.launch({
     args: args
   });
   let pdfs = [];
